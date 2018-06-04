@@ -1,0 +1,108 @@
+1st Quarter
+		Scoring	Interp
+Ave:	 2.12 	 10.11
+Stdv:	 2.03 	 4.7
+Min:	 0.0 	 0.0
+Max:	 13.0 	 48.0
+
+2nd Quarter
+		Scoring	Interp
+Ave:	 2.13 	 10.74
+Stdv:	 1.9 	 4.85
+Min:	 0.0 	 0.0
+Max:	 8.0 	 25.0
+
+3rd Quarter
+		Scoring	Interp
+Ave:	 nan 	 nan
+Stdv:	 nan 	 nan
+Min:	 nan 	 nan
+Max:	 nan 	 nan
+
+4th Quarter
+		Scoring	Interp
+Ave:	 nan 	 nan
+Stdv:	 nan 	 nan
+Min:	 nan 	 nan
+Max:	 nan 	 nan
+
+Quarter 1
+
+Ordering Provider  Study Type   
+jhf                Failed HST        1
+                   HST              14
+                   PSG               3
+kgw                Failed HST        2
+                   Failed in lab     3
+                   HST              51
+                   MSLT              5
+                   OAT               6
+                   PAP               8
+                   PSG               9
+                   PSG w/EtCO2       2
+                   Split             4
+mb                 Failed HST        5
+                   Failed in lab     1
+                   HST              41
+                   MSLT              1
+                   PAP              13
+                   PSG               5
+                   Split             2
+ms                 HST               4
+                   OAT               2
+                   PAP               4
+                   PSG               1
+qr                 HST              30
+                   OAT               2
+                   PAP              19
+                   PSG               8
+                   PSG w/EEG         2
+                   Split             6
+dtype: int64
+
+Quarter 2
+
+Ordering Provider  Study Type   
+jhf                Failed HST        3
+                   HST              44
+                   MSLT              1
+                   OAT               1
+                   PAP               4
+                   PSG               1
+                   Split             6
+kgw                Failed HST        1
+                   Failed in lab     1
+                   HST              33
+                   MSLT              2
+                   OAT               4
+                   PAP              10
+                   PSG               5
+                   PSG w/EtCO2       4
+mb                 Failed HST        2
+                   HST              28
+                   MSLT              1
+                   OAT               1
+                   PAP               5
+                   PSG               3
+                   Split             3
+ms                 Failed in lab     1
+                   HST               1
+                   PAP               2
+                   PSG               3
+qr                 Failed HST        5
+                   Failed in lab     1
+                   HST              31
+                   OAT               3
+                   PAP               7
+                   PSG               9
+                   PSG w/EEG         1
+                   Split             9
+dtype: int64
+
+Quarter 3
+
+Series([], dtype: int64)
+
+Quarter 4
+
+Series([], dtype: int64)
