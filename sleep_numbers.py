@@ -1,10 +1,12 @@
 """ Pulls information from excel spreadsheet and compiles those numbers into the stats excel spreadsheet. Written in
     Python 3.6 and depends on pandas, xlwings, datetime and math"""
 
-import pandas       # read_excel
-import xlwings      # Book
-import datetime     # datetime.today
-import math         # ceil
+import datetime  # datetime.today
+import math  # ceil
+import sys
+
+import pandas  # read_excel
+import xlwings  # Book
 
 """ Global variables for providers, techs and study type groupings """
 
@@ -15,21 +17,21 @@ PSG = ['Polysomnography', 'Polysomnography/wMSLT to follow', 'Polysomnography/wO
 PSG_EEG = ['Polysomnography/wEEG']
 PSG_ETCO2 = ['Polysomnography/wEEG-EtCO2', 'Polysomnography/wEtCO2']
 SPLIT = ['Split-Night', 'Split-Night/wO2', 'Split-Night/wCPAP', 'Split-Night/wCPAP/wO2', 'Split-Night/wCPAP/VPAP',
-         'Split-Night/wCPAP/VPAP/wO2', 'Split-Night/wCPAP/VPAP/ASV', 'Split-Night/wCPAP/VPAP/ASV/wO2', 'Split-Night/wEEG',
-         'Split-Night/wEtCO2', 'Split-Night/wRBD', 'Split-Night/wVPAP/wO2', 'Split-Night/wVPAP/ASV',
+         'Split-Night/wCPAP/VPAP/wO2', 'Split-Night/wCPAP/VPAP/ASV', 'Split-Night/wCPAP/VPAP/ASV/wO2',
+         'Split-Night/wEEG', 'Split-Night/wEtCO2', 'Split-Night/wRBD', 'Split-Night/wVPAP/wO2', 'Split-Night/wVPAP/ASV',
          'Split-Night/wVPAP/ASV/wO2']
 HST = ['ApneaLink +', 'ApneaLink Air', 'NOX-T3']
 MSLT = ['MSLT', 'MSLT/wCPAP', 'MSLT/wCPAP/wO2']
 MWT = ['MWT']
-OAT = ['Matrix Titration', 'Oral Device Titration', 'Oral Device Titration/wO2', 'Oral Device Titration/wO2w/PSG Follows',
-       'Polysomnography/wOral Device', 'PSG/wOral/wO2 end of study']
+OAT = ['Matrix Titration', 'Oral Device Titration', 'Oral Device Titration/wO2',
+       'Oral Device Titration/wO2w/PSG Follows', 'Polysomnography/wOral Device', 'PSG/wOral/wO2 end of study']
 PAP = ['AdaptSV Titration', 'AdaptSV/wO2 Titration', 'BiPAP Trilogy', 'BiPAP Trilogy/wO2', 'C/V/ST/ASV Titration',
        'C/V/ST/ASV/wO2 Titration', 'C/VPAP/wRBD', 'C/VPAP/wO2/wRBD', 'CPAP Titration', 'CPAP Titration/wEEG',
        'CPAP Titration/wEEG/wO2', 'CPAP Titration/wEtCO2', 'CPAP Titration/wO2', 'CPAP Titration/wRBD',
        'CPAP Titration/wRBD/wO2', 'CPAP to Qualify for O2 - Medicare', 'CPAP to VPAP Titration',
        'CPAP to VPAP/wO2 Titration', 'CPAP/wOral Appliance', 'CPAP/wOral/wO2 Appliance', 'VPAP Titration/wEEG',
        'VPAP Titration/wEEG/wO2', 'VPAP ST Titration', 'VPAP ST/wO2 Titration', 'VPAP ST/ASV Titration',
-       'VPAP ST/ASV/wO2 Titration', 'VPAP Titration', 'VPAP/wO2 Titration',]
+       'VPAP ST/ASV/wO2 Titration', 'VPAP Titration', 'VPAP/wO2 Titration']
 PAP_NAP = ['PAP-Nap']
 FAILED_HST = ['Failed ApneaLink +', 'Failed ApneaLink Air', 'Failed NOX-T3']
 NO_SHOW = ['Unable to tolerate CPAP', 'No Show', 'Rescheduled']
@@ -41,18 +43,29 @@ QUARTER = math.ceil(NOW.month / 3)
 
 """ Globally opens excel to correct workbook """
 FILE = '\\\\Co.ihc.com\\swr\\DX\\Dept\\12600-28311\\Q&A for AASM\\2018-DRSDC-QA.xlsx'
-WB = xlwings.Book(FILE)
+try:
+    WB = xlwings.Book(FILE)
+except Exception as err:
+    print(err)
+    sys.exit()
 
 
 def setup():
 
-    """ Opens the source excel workbook, reads all the data into a pandas dataframe, renames the columns and sorts
-        the data into seperate dataframes by quarter """
+    """
+    Opens the source excel workbook, reads all the data into a pandas dataframe, renames the columns and sorts
+    the data into seperate dataframes by quarter
+    @return 4 dataframes seprated by quarter:
+    """
 
     srcfile = 'X:\\IHC-SLEEP STUDIES-Y-T-D.xlsx'
 
     # Make your DataFrame
-    df = pandas.read_excel(srcfile, usecols='A, D, E, H:J, L, N, O, T', skiprows=9, header=None)
+    try:
+        df = pandas.read_excel(srcfile, usecols='A, D, E, H:J, L, N, O, T', skiprows=9, header=None)
+    except Exception as e:
+        print(e)
+        sys.exit()
 
     # Rename column names for ease of reference
     column_names = {
@@ -103,8 +116,12 @@ def setup():
 
 def calcHSTStats(df):
 
-    """ accepts dataframe and calculates the number of failed home studies and the average scoring time for
-        successfull studies """
+    """
+    accepts dataframe and calculates the number of failed home studies and the average scoring time for
+    successfull studies
+    @param df:
+    @return stats:
+    """
 
     stats = []
     failed = df[df['Study Type'] == 'Failed HST']
@@ -118,11 +135,27 @@ def calcHSTStats(df):
     return stats
 
 
+def openSheet(sheet):
+
+    """ Opens the excel sheet
+    @param sheet:
+    @return sheet:"""
+
+    try:
+        sheet = WB.sheets[sheet]
+    except Exception:
+        print("Sheet, {}, cannot be found".format(sheet))
+        sys.exit()
+    return sheet
+
+
 def hstNumbersToExcel(stats, sheet):
 
-    """ sends the stats to the correct location in excel """
+    """ sends the stats to the correct location in excel
+    @param stats, sheet:
+    @return none:"""
 
-    sheet = WB.sheets[sheet]
+    sheet = openSheet(sheet)
     sheet.range('V10').value = stats[0]
     sheet.range('V12').value = stats[1]
     sheet.range('V14').value = stats[2]
@@ -130,7 +163,9 @@ def hstNumbersToExcel(stats, sheet):
 
 def calcStats(df):
 
-    """ calculates stats for all of the studies done that quarter and saves them to a list """
+    """ calculates stats for all of the studies done that quarter and saves them to a list
+    @param df:
+    @return stats:"""
 
     # Scoring stats
     scoring_ave = round(df['Delta Scored'].mean(), 2)
@@ -161,7 +196,9 @@ def calcStats(df):
 
 def numbersToExcel(stats, sheet):
 
-    """ takes overall stats and sends them to the correct sheet in excel """
+    """ takes overall stats and sends them to the correct sheet in excel
+    @param stats, sheet:
+    @return none:"""
 
     scoring_cells = ['S34', 'S35', 'S36', 'S37']
     interp_cells = ['S38', 'S39', 'S40', 'S41']
@@ -174,10 +211,14 @@ def numbersToExcel(stats, sheet):
 
 def hstFailuresToExcel(df, sheet):
 
-    """ takes dataframe and creates a list of the reasons that studies failed then sends them to excel """
+    """ takes dataframe and creates a list of the reasons that studies failed then sends them to excel
+    @param dataframe, sheet:
+    @return none:"""
 
-    sheet = WB.sheets[sheet]
-    failure_cells = ['D17', 'D18', 'D19', 'D20', 'D21', 'D22', 'D23', 'D24', 'D25', 'D26', 'D27', 'D28', 'D29', 'D30']
+    sheet = openSheet(sheet)
+
+    failure_cells = ['D17', 'D18', 'D19', 'D20', 'D21', 'D22', 'D23', 'D24', 'D25', 'D26', 'D27', 'D28', 'D29', 'D30',
+                     'D31', 'D32', 'D33', 'D34', 'D35']
     failures = df['Failure'].dropna().tolist()
     for i in range(len(failures)):
         sheet.range(failure_cells[i]).value = failures[i]
@@ -185,7 +226,9 @@ def hstFailuresToExcel(df, sheet):
 
 def printNumbers(q1df, q2df, q3df, q4df):
 
-    """ setup stats for all studies and home studies by quarter and sends them to excel """
+    """ setup stats for all studies and home studies by quarter and sends them to excel
+    @param dataframes filtered by quarter, q1df, q2df, q3df, q4df:
+    @return none:"""
 
     # stats are list of tuples (label, scoring stat, interp stat)
     if QUARTER > 1:
@@ -216,10 +259,12 @@ def printNumbers(q1df, q2df, q3df, q4df):
 
 def sendToExcel(studies, sheet, provider):
 
-    """ sends the study counts to the correct cell in excel """
+    """ sends the study counts to the correct cell in excel
+    @param studies, sheet, provider:
+    @return none:"""
 
     # excel sheet passed in from previous functions
-    sheet = WB.sheets[sheet]
+    sheet = openSheet(sheet)
 
     # mapping for spreadsheet locations
     kgw_cells = {'PSG': 'K12', 'EEG': 'K13', 'ETCO2': 'K14', 'SPLIT': 'K15', 'HST': 'K16', 'MSLT': 'K17', 'MWT': 'K18',
@@ -278,7 +323,9 @@ def sendToExcel(studies, sheet, provider):
 
 def setupProviderNumbersForExport(kgw, jhf, qr, mb, dr, sheet):
 
-    """ prepares the provider study counts to be sent to excel """
+    """ prepares the provider study counts to be sent to excel
+    @param kgw, jhf, qr, mb, dr, sheet:
+    @return none:"""
 
     for kgw_studies in kgw:
         sendToExcel(kgw_studies, sheet, 'kgw')
@@ -294,7 +341,9 @@ def setupProviderNumbersForExport(kgw, jhf, qr, mb, dr, sheet):
 
 def unpackProviderNumbers(df, sheet):
 
-    """ converts the dataframe into a dictionary and then unpacks specific data into seperate lists """
+    """ converts the dataframe into a dictionary and then unpacks specific data into seperate lists
+    @param df, sheet:
+    @return none:"""
 
     kgw, jhf, qr, mb, dr = ([] for i in range(5))  # 5 empty lists
     studies = dict(df.size())
@@ -316,38 +365,26 @@ def unpackProviderNumbers(df, sheet):
 
 def printNumbersByProvider(q1df, q2df, q3df, q4df):
 
-    """ sends numbers by quarter for sorting and export to excel """
+    """ sends numbers by quarter for sorting and export to excel
+    @param q1df, q2df, q3df, q4df:
+    @return none:"""
 
     # Sort by provider and study type then print
     if QUARTER > 1:
         q1 = q1df.groupby(['Ordering Provider', 'Study Type'])
-        #print('\nQuarter 1\n')
-        #print(q1.size())
         unpackProviderNumbers(q1, 'Q1')
         if QUARTER > 2:
             q2 = q2df.groupby(['Ordering Provider', 'Study Type'])
             unpackProviderNumbers(q2, 'Q2')
-            #print('\nQuarter 2\n')
-            #print(q2.size())
             if QUARTER > 3:
                 q3 = q3df.groupby(['Ordering Provider', 'Study Type'])
                 unpackProviderNumbers(q3, 'Q3')
-                #print('\nQuarter 3\n')
-                #print(q3.size())
                 if QUARTER > 4:
                     q4 = q4df.groupby(['Ordering Provider', 'Study Type'])
                     unpackProviderNumbers(q4, 'Q4')
-                    #print('\nQuarter 4\n')
-                    #print(q4.size())
+
 
 if __name__ == "__main__":
     q1df, q2df, q3df, q4df = setup()
     printNumbers(q1df, q2df, q3df, q4df)
     printNumbersByProvider(q1df, q2df, q3df, q4df)
-
-
-
-
-
-
-
