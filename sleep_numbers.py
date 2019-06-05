@@ -1,11 +1,11 @@
 """ Pulls information from excel spreadsheet and compiles those numbers into the stats excel spreadsheet. Written in
     Python 3.6 and depends on pandas, xlwings, datetime and math"""
 
-import datetime  # datetime.today
-import math  # ceil
+import datetime # datetime.today
+import math     # ceil
 import sys
 
-import pandas  # read_excel
+import pandas   # read_excel
 import xlwings  # Book
 
 """ Global variables for providers, techs and study type groupings """
@@ -14,17 +14,20 @@ PROVIDERS = ['kgw', 'qr', 'mb', 'jhf', 'ms']
 TECHS = ['cfb', 'jls', 'kk', 'pgw', 'jjc', 'wmc', 'sl', 'kgw', 'kl']
 PSG = ['Polysomnography', 'Polysomnography/wMSLT to follow', 'Polysomnography/wO2 end of study', 'Polysomnography/wRBD',
        'PostOp Polysomnography', 'Provent/wO2 Titration']
+
 PSG_EEG = ['Polysomnography/wEEG']
 PSG_ETCO2 = ['Polysomnography/wEEG-EtCO2', 'Polysomnography/wEtCO2']
 SPLIT = ['Split-Night', 'Split-Night/wO2', 'Split-Night/wCPAP', 'Split-Night/wCPAP/wO2', 'Split-Night/wCPAP/VPAP',
          'Split-Night/wCPAP/VPAP/wO2', 'Split-Night/wCPAP/VPAP/ASV', 'Split-Night/wCPAP/VPAP/ASV/wO2',
          'Split-Night/wEEG', 'Split-Night/wEtCO2', 'Split-Night/wRBD', 'Split-Night/wVPAP/wO2', 'Split-Night/wVPAP/ASV',
          'Split-Night/wVPAP/ASV/wO2']
+
 HST = ['ApneaLink +', 'ApneaLink Air', 'NOX-T3']
 MSLT = ['MSLT', 'MSLT/wCPAP', 'MSLT/wCPAP/wO2']
 MWT = ['MWT']
 OAT = ['Matrix Titration', 'Oral Device Titration', 'Oral Device Titration/wO2',
        'Oral Device Titration/wO2w/PSG Follows', 'Polysomnography/wOral Device', 'PSG/wOral/wO2 end of study']
+
 PAP = ['AdaptSV Titration', 'AdaptSV/wO2 Titration', 'BiPAP Trilogy', 'BiPAP Trilogy/wO2', 'C/V/ST/ASV Titration',
        'C/V/ST/ASV/wO2 Titration', 'C/VPAP/wRBD', 'C/VPAP/wO2/wRBD', 'CPAP Titration', 'CPAP Titration/wEEG',
        'CPAP Titration/wEEG/wO2', 'CPAP Titration/wEtCO2', 'CPAP Titration/wO2', 'CPAP Titration/wRBD',
@@ -32,17 +35,21 @@ PAP = ['AdaptSV Titration', 'AdaptSV/wO2 Titration', 'BiPAP Trilogy', 'BiPAP Tri
        'CPAP to VPAP/wO2 Titration', 'CPAP/wOral Appliance', 'CPAP/wOral/wO2 Appliance', 'VPAP Titration/wEEG',
        'VPAP Titration/wEEG/wO2', 'VPAP ST Titration', 'VPAP ST/wO2 Titration', 'VPAP ST/ASV Titration',
        'VPAP ST/ASV/wO2 Titration', 'VPAP Titration', 'VPAP/wO2 Titration']
+
 PAP_NAP = ['PAP-Nap']
 FAILED_HST = ['Failed ApneaLink +', 'Failed ApneaLink Air', 'Failed NOX-T3']
 NO_SHOW = ['Unable to tolerate CPAP', 'No Show', 'Rescheduled']
 OTHER = ['WINX PSG', 'Provent Titration']
+INSPIRE = ['Inspire']
 
 """ Global variable for calculating the quarter """
 NOW = datetime.date.today()
 QUARTER = math.ceil(NOW.month / 3)
 
 """ Globally opens excel to correct workbook """
-FILE = '\\\\Co.ihc.com\\swr\\DX\\Dept\\12600-28311\\Q&A for AASM\\2018-DRSDC-QA.xlsx'
+#FILE = '\\\\Co.ihc.com\\swr\\DX\\Dept\\12600-28311\\Q&A for AASM\\2018-DRSDC-QA.xlsx'
+FILE = "https://intermountainhealth.sharepoint.com/sites/DRMCSleepCenter/Shared Documents/IHC-SLEEP STUDIES-Y-T-D.xlsx"
+
 try:
     WB = xlwings.Book(FILE)
 except Exception as err:
@@ -268,15 +275,15 @@ def sendToExcel(studies, sheet, provider):
 
     # mapping for spreadsheet locations
     kgw_cells = {'PSG': 'K12', 'EEG': 'K13', 'ETCO2': 'K14', 'SPLIT': 'K15', 'HST': 'K16', 'MSLT': 'K17', 'MWT': 'K18',
-                 'OAT': 'K19', 'PAP': 'K20', 'NAP': 'K21', 'FHST': 'K22', 'NS': 'K23'}
+                 'OAT': 'K19', 'Inspire': 'K20', 'PAP': 'K21', 'NAP': 'K22', 'FHST': 'K23', 'NS': 'K24'}
     mb_cells = {'PSG': 'P12', 'EEG': 'P13', 'ETCO2': 'P14', 'SPLIT': 'P15', 'HST': 'P16', 'MSLT': 'P17', 'MWT': 'P18',
-                 'OAT': 'P19', 'PAP': 'P20', 'NAP': 'P21', 'FHST': 'P22', 'NS': 'P23'}
+                 'OAT': 'P19', 'Inspire': 'P20', 'PAP': 'P21', 'NAP': 'P22', 'FHST': 'P23', 'NS': 'P24'}
     qr_cells = {'PSG': 'U12', 'EEG': 'U13', 'ETCO2': 'U14', 'SPLIT': 'U15', 'HST': 'U16', 'MSLT': 'U17', 'MWT': 'U18',
-                 'OAT': 'U19', 'PAP': 'U20', 'NAP': 'U21', 'FHST': 'U22', 'NS': 'U23'}
+                 'OAT': 'U19', 'Inspire': 'U20', 'PAP': 'U21', 'NAP': 'U22', 'FHST': 'U23', 'NS': 'U24'}
     jf_cells = {'PSG': 'AA12', 'EEG': 'AA13', 'ETCO2': 'AA14', 'SPLIT': 'AA15', 'HST': 'AA16', 'MSLT': 'AA17',
-                'MWT': 'AA18', 'OAT': 'AA19', 'PAP': 'AA20', 'NAP': 'AA21', 'FHST': 'AA22', 'NS': 'AA23'}
+                'MWT': 'AA18', 'OAT': 'AA19', 'Inspire': 'AA20', 'PAP': 'AA21', 'NAP': 'AA22', 'FHST': 'AA23', 'NS': 'AA24'}
     dr_cells = {'PSG': 'AG12', 'EEG': 'AG13', 'ETCO2': 'AG14', 'SPLIT': 'AG15', 'HST': 'AG16', 'MSLT': 'AG17',
-                'MWT': 'AG18', 'OAT': 'AG19', 'PAP': 'AG20', 'NAP': 'AG21', 'FHST': 'AG22', 'NS': 'AG23'}
+                'MWT': 'AG18', 'OAT': 'AG19', 'Inspire': 'AG20', 'PAP': 'AG21', 'NAP': 'AG22', 'FHST': 'AG23', 'NS': 'AG24'}
 
     # assign correct cell mapping by provider
     if provider == 'kgw':
@@ -317,8 +324,13 @@ def sendToExcel(studies, sheet, provider):
         sheet.range(cells['FHST']).value = studies[1]
     elif studies[0] == 'Failed in lab':
         sheet.range(cells['NS']).value = studies[1]
+    elif studies[0] == 'Inspire':
+        sheet.range(cells['Inspire']).value = studies[1]
     elif 'Other' in studies[0]:
         print(studies[0], studies[1])
+    else:
+        print('Study type, {} is not indexed'.format(studies[0]))
+        return
 
 
 def setupProviderNumbersForExport(kgw, jhf, qr, mb, dr, sheet):
